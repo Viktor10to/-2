@@ -5,7 +5,6 @@
              Background="#0B0B0F">
 
     <Grid Margin="30">
-
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -28,13 +27,12 @@
                     DockPanel.Dock="Right"/>
         </DockPanel>
 
-        <!-- FLOOR WRAPPER -->
+        <!-- FLOOR -->
         <Border Grid.Row="1"
                 Background="#14141B"
                 CornerRadius="20"
                 Padding="10">
 
-            <!-- FLOOR CANVAS -->
             <ItemsControl ItemsSource="{Binding Tables}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -42,6 +40,7 @@
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
 
+                <!-- позициониране по X/Y -->
                 <ItemsControl.ItemContainerStyle>
                     <Style TargetType="ContentPresenter">
                         <Setter Property="Canvas.Left" Value="{Binding X}"/>
@@ -52,35 +51,36 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type models:TableModel}">
                         <Button Width="90"
-                                Height="90"
-                                Command="{Binding DataContext.TableClickCommand,
-                                          RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                CommandParameter="{Binding}"
-                                BorderThickness="0"
-                                FontSize="20"
-                                FontWeight="Bold"
-                                Foreground="White">
+        Height="90"
+        BorderThickness="0"
+        FontSize="20"
+        FontWeight="Bold"
+        Foreground="White"
+        PreviewMouseLeftButtonDown="Table_MouseDown"
+        PreviewMouseMove="Table_MouseMove"
+        PreviewMouseLeftButtonUp="Table_MouseUp">
 
+                            <!-- статус без converter -->
                             <Button.Style>
                                 <Style TargetType="Button">
-                                    <Setter Property="Background" Value="#22C55E"/>
+                                    <Setter Property="Background" Value="Green"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding Status}" Value="Busy">
-                                            <Setter Property="Background" Value="#EF4444"/>
+                                            <Setter Property="Background" Value="Red"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </Button.Style>
 
                             <TextBlock Text="{Binding Number}"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center"/>
                         </Button>
+
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
         </Border>
-
     </Grid>
 </UserControl>

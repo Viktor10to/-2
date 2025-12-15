@@ -1,6 +1,10 @@
 ﻿<Application x:Class="Flexi2.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="clr-namespace:Flexi2.Converters">
+
     <Application.Resources>
+        <converters:TableStatusToBrushConverter
+            x:Key="TableStatusToBrushConverter"/>
     </Application.Resources>
 </Application>
