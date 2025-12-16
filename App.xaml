@@ -1,16 +1,6 @@
 ﻿<Application x:Class="Flexi2.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vmOrders="clr-namespace:Flexi2.ViewModels.Orders"
-             xmlns:viewsOrders="clr-namespace:Flexi2.Views.Orders"
-             StartupUri="MainWindow.xaml">
-
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Application.Resources>
-
-        <!-- КАЗВАМЕ: OrderViewModel = OrderView -->
-        <DataTemplate DataType="{x:Type vmOrders:OrderViewModel}">
-            <viewsOrders:OrderView />
-        </DataTemplate>
-
     </Application.Resources>
 </Application>
