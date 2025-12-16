@@ -1,16 +1,24 @@
-﻿using System;
+﻿using Flexi2.Core.MVVM;
 
 namespace Flexi2.Core.Navigation
 {
-    public class NavigationService
+    public class NavigationService : ObservableObject
     {
-        public object? Current { get; private set; }
-        public event Action? Changed;
+        private object? _currentViewModel;
 
-        public void Navigate(object vm)
+        public object? CurrentViewModel
         {
-            Current = vm;
-            Changed?.Invoke();
+            get => _currentViewModel;
+            private set
+            {
+                _currentViewModel = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public void Navigate(object viewModel)
+        {
+            CurrentViewModel = viewModel;
         }
     }
 }

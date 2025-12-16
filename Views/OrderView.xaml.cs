@@ -1,14 +1,13 @@
 ﻿using System.Windows.Controls;
-using Flexi2.ViewModels.Orders;
 
-namespace Flexi2.Views.Orders
+namespace Flexi2.Views
 {
     public partial class OrderView : UserControl
     {
         public OrderView()
         {
             InitializeComponent();
-            
         }
     }
 }
+

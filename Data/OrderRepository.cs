@@ -26,7 +26,7 @@ namespace Flexi2.Data
             {
                 cn.Execute(
                     "INSERT INTO OrderItems(OrderId,ProductName,Qty,Price) VALUES(@o,@n,@q,@p)",
-                    new { o = orderId, n = i.Product.Name, q = i.Quantity, p = i.Product.Price });
+                    new { o = orderId, n = i.Product.Name, q = i.Qty, p = i.Product.Price });
             }
         }
 

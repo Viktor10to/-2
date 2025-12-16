@@ -9,23 +9,21 @@ namespace Flexi2.ViewModels
         private readonly NavigationService _nav;
         private readonly UserSession _session;
 
-        private object? _currentView;
+        public object CurrentView => _nav.CurrentViewModel;
 
-        public object? CurrentView
+        public MainViewModel(NavigationService nav, UserSession session)
         {
-            get => _currentView;
-            set { _currentView = value; OnPropertyChanged(); }
-        }
+            _nav = nav;
+            _session = session;
 
-        public MainViewModel()
-        {
-            _nav = new NavigationService();
-            _nav.Changed += () => CurrentView = _nav.Current;
+            _nav.PropertyChanged += (_, __) =>
+                OnPropertyChanged(nameof(CurrentView));
 
-            _session = new UserSession();
+            // създаваме FloorPlan САМО ВЕДНЪЖ
+            _session.FloorPlan = new FloorPlanViewModel(_nav, _session);
 
-            // старт → Login
             _nav.Navigate(new LoginViewModel(_nav, _session));
         }
     }
+
 }

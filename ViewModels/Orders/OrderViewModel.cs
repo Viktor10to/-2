@@ -1,72 +1,135 @@
 ﻿using Flexi2.Core.MVVM;
+using Flexi2.Core.Navigation;
+using Flexi2.Core.Session;
 using Flexi2.Models;
-using Flexi2.Models.Products;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows.Input;
 
 namespace Flexi2.ViewModels.Orders
 {
     public class OrderViewModel : ObservableObject
     {
+        private readonly NavigationService _nav;
+        private readonly UserSession _session;
+        private readonly TableModel _table;
+        public RelayCommand CloseBillCommand { get; }
+
         public ObservableCollection<Category> Categories { get; } = new();
         public ObservableCollection<Product> Products { get; } = new();
         public ObservableCollection<Product> FilteredProducts { get; } = new();
-        public ObservableCollection<OrderItem> OrderItems { get; } = new();
 
-        private Category _selectedCategory;
-        public Category SelectedCategory
+        // 👇 ВРЪЗКА КЪМ МАСАТА
+        public ObservableCollection<OrderItem> OrderItems => _table.OrderItems;
+
+        public decimal Total => OrderItems.Sum(i => i.Total);
+
+        public RelayCommand<Category> SelectCategoryCommand { get; }
+        public RelayCommand<Product> AddProductCommand { get; }
+        public RelayCommand BackCommand { get; }
+        public RelayCommand SubmitOrderCommand { get; }
+        private decimal _discountPercent;
+        public decimal DiscountPercent
         {
-            get => _selectedCategory;
+            get => _discountPercent;
             set
             {
-                _selectedCategory = value;
+                if (value < 0) value = 0;
+                if (value > 100) value = 100;
+
+                _discountPercent = value;
                 OnPropertyChanged();
-                FilterProducts();
+                OnPropertyChanged(nameof(DiscountAmount));
+                OnPropertyChanged(nameof(FinalTotal));
             }
         }
 
-        public ICommand SelectCategoryCommand { get; }
-        public ICommand AddProductCommand { get; }
+        public decimal Subtotal => OrderItems.Sum(i => i.Total);
 
-        public decimal Total => OrderItems.Sum(i => i.LineTotal);
+        public decimal DiscountAmount => Subtotal * (DiscountPercent / 100m);
 
-        public OrderViewModel()
+        public decimal FinalTotal => Subtotal - DiscountAmount;
+
+        public OrderViewModel(NavigationService nav, UserSession session, TableModel table)
         {
-            // Категории
-            Categories.Add(new Category { Id = 1, Name = "Кафе" });
-            Categories.Add(new Category { Id = 2, Name = "Безалкохолни" });
-            Categories.Add(new Category { Id = 3, Name = "Храна" });
+            CloseBillCommand = new RelayCommand(() =>
+            {
+                // 1️⃣ начисляваме оборота
+                _session.TotalTurnover += FinalTotal;
+                
+                // 2️⃣ чистим сметката
+                _table.OrderItems.Clear();
+                _table.HasOpenOrder = false;
 
-            // Продукти
-            Products.Add(new Product { Id = 1, Name = "Еспресо", Price = 2.50m, CategoryId = 1 });
-            Products.Add(new Product { Id = 2, Name = "Капучино", Price = 3.50m, CategoryId = 1 });
-            Products.Add(new Product { Id = 3, Name = "Кола", Price = 3.00m, CategoryId = 2 });
-            Products.Add(new Product { Id = 4, Name = "Фанта", Price = 3.00m, CategoryId = 2 });
-            Products.Add(new Product { Id = 5, Name = "Бургер", Price = 8.00m, CategoryId = 3 });
+                // 3️⃣ освобождаваме масата
+                _table.Status = TableStatus.Free;
 
-            SelectCategoryCommand = new RelayCommand<Category>(c => SelectedCategory = c);
-            AddProductCommand = new RelayCommand<Product>(AddProduct);
-        }
+                // 4️⃣ обратно към масите
+                _nav.Navigate(_session.FloorPlan!);
+            });
 
-        private void FilterProducts()
-        {
-            FilteredProducts.Clear();
-            if (SelectedCategory == null) return;
 
-            foreach (var p in Products.Where(p => p.CategoryId == SelectedCategory.Id))
-                FilteredProducts.Add(p);
-        }
+            _nav = nav;
+            _session = session;
+            _table = table;
 
-        private void AddProduct(Product product)
-        {
-            var existing = OrderItems.FirstOrDefault(i => i.Product.Id == product.Id);
-            if (existing != null)
-                existing.Quantity++;
-            else
-                OrderItems.Add(new OrderItem { Product = product });
+            // demo категории/продукти
+            Categories.Add(new Category { Name = "Кафе" });
+            Categories.Add(new Category { Name = "Безалкохолни" });
+            Categories.Add(new Category { Name = "Храна" });
 
-            OnPropertyChanged(nameof(Total));
+            Products.Add(new Product { Name = "Еспресо", Price = 2.50m, Category = "Кафе" });
+            Products.Add(new Product { Name = "Кола", Price = 3.00m, Category = "Безалкохолни" });
+            Products.Add(new Product { Name = "Бургер", Price = 8.00m, Category = "Храна" });
+
+            SelectCategoryCommand = new RelayCommand<Category>(cat =>
+            {
+                FilteredProducts.Clear();
+                foreach (var p in Products.Where(p => p.Category == cat.Name))
+                    FilteredProducts.Add(p);
+            });
+
+            AddProductCommand = new RelayCommand<Product>(p =>
+            {
+                var existing = OrderItems.FirstOrDefault(i => i.Product == p);
+                if (existing != null) existing.Qty++;
+                else OrderItems.Add(new OrderItem { Product = p });
+
+                _table.Status = TableStatus.Busy;
+                OnPropertyChanged(nameof(Subtotal));
+                OnPropertyChanged(nameof(DiscountAmount));
+                OnPropertyChanged(nameof(FinalTotal));
+
+            });
+
+            BackCommand = new RelayCommand(() =>
+            {
+                // ⬅ САМО връщаме към масите
+                // ❌ НЕ пипаме масата
+                // ❌ НЕ заключваме нищо
+
+                _nav.Navigate(_session.FloorPlan!);
+            });
+
+
+            SubmitOrderCommand = new RelayCommand(() =>
+            {
+                // 🔒 заключваме текущите редове
+                foreach (var item in OrderItems)
+                    item.IsLocked = true;
+
+                // 🔴 масата става заета
+                _table.Status = TableStatus.Busy;
+                _table.HasOpenOrder = true;
+
+                // ❌ НЕ чистим OrderItems
+                // поръчката остава към масата
+
+                _nav.Navigate(_session.FloorPlan!);
+            });
+
+
+
+
         }
     }
 }

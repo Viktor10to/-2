@@ -1,4 +1,5 @@
 ﻿using Flexi2.Core.MVVM;
+using Flexi2.ViewModels;
 
 namespace Flexi2.Core.Session
 {
@@ -10,6 +11,8 @@ namespace Flexi2.Core.Session
 
     public class UserSession : ObservableObject
     {
+        public decimal TotalTurnover { get; set; }
+        public FloorPlanViewModel? FloorPlan { get; set; }
         private bool _isLoggedIn;
         private string _displayName = "";
         private UserRole _role = UserRole.Waiter;
