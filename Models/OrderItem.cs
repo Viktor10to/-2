@@ -1,10 +1,12 @@
-﻿namespace Flexi2.Models
+﻿using Flexi2.Models.Products;
+
+namespace Flexi2.Models
 {
     public class OrderItem
     {
         public Product Product { get; set; } = null!;
-        public int Qty { get; set; }
-        public bool IsLocked { get; set; }  // след "Поръчай"
-        public decimal Total => Product.Price * Qty;
+        public int Quantity { get; set; } = 1;
+
+        public decimal LineTotal => Product.Price * Quantity;
     }
 }

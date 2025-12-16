@@ -2,6 +2,7 @@
 using Flexi2.Core.Navigation;
 using Flexi2.Core.Session;
 using Flexi2.Models;
+using Flexi2.ViewModels.Orders;
 using System.Collections.ObjectModel;
 using System.Linq;
 
@@ -57,7 +58,7 @@ namespace Flexi2.ViewModels
             TableClickCommand = new RelayCommand<TableModel>(table =>
             {
                 if (table != null)
-                    _nav.Navigate(new OrderViewModel(_nav, _session, table));
+                    _nav.Navigate(new OrderViewModel());
             });
 
             LogoutCommand = new RelayCommand(() =>
