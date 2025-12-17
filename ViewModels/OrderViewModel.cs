@@ -1,9 +1,9 @@
-﻿using Dapper;
-using Flexi2.Core.MVVM;
+﻿using Flexi2.Core.MVVM;
 using Flexi2.Core.Navigation;
 using Flexi2.Core.Session;
 using Flexi2.Data;
 using Flexi2.Models;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 
@@ -14,62 +14,140 @@ namespace Flexi2.ViewModels
         private readonly NavigationService _nav;
         private readonly UserSession _session;
         private readonly TableModel _table;
-        private readonly OrderRepository _repo;
 
-        private int _orderId;
+        // ================== DATA ==================
+        public ObservableCollection<Category> Categories { get; }
+            = new ObservableCollection<Category>();
+
+        public ObservableCollection<Product> Products { get; }
+            = new ObservableCollection<Product>();
+
+        public ObservableCollection<Product> FilteredProducts { get; }
+            = new ObservableCollection<Product>();
+
+        public ObservableCollection<OrderItem> OrderItems => _table.OrderItems;
+
+        private Category? _selectedCategory;
+
+        // ================== DISCOUNT ==================
+        private decimal _discountPercent;
+        public decimal DiscountPercent
+        {
+            get => _discountPercent;
+            set
+            {
+                _discountPercent = value;
+                OnPropertyChanged();
+                OnTotalsChanged();
+            }
+        }
+
+        // ================== TOTALS ==================
+        public decimal Subtotal => OrderItems.Sum(i => i.Total);
+        public decimal DiscountAmount => Subtotal * DiscountPercent / 100m;
+        public decimal FinalTotal => Subtotal - DiscountAmount;
 
         public string Title => $"МАСА {_table.Number}";
 
-        public ObservableCollection<Category> Categories { get; }
-        public ObservableCollection<Product> Products { get; }
-        public ObservableCollection<OrderItem> Items { get; }
-
-        public decimal Total => Items.Sum(i => i.Total);
-
+        // ================== COMMANDS ==================
+        public RelayCommand<Category> SelectCategoryCommand { get; }
         public RelayCommand<Product> AddProductCommand { get; }
-        public RelayCommand PlaceOrderCommand { get; }
+        public RelayCommand SubmitOrderCommand { get; }
         public RelayCommand CloseBillCommand { get; }
+        public RelayCommand BackCommand { get; }
 
-        public OrderViewModel(NavigationService nav, UserSession session, TableModel table)
+        // ================== CTOR ==================
+        public OrderViewModel(
+            NavigationService nav,
+            UserSession session,
+            TableModel table)
         {
             _nav = nav;
             _session = session;
             _table = table;
+        
 
-            var db = new FlexiDb();
-            _repo = new OrderRepository(db);
+            // -------- TEMP DATA (по-късно от DB) --------
+            Categories.Add(new Category { Name = "Кафе" });
+            Categories.Add(new Category { Name = "Безалкохолни" });
+            Categories.Add(new Category { Name = "Храна" });
 
-            _orderId = _repo.CreateOrder(_table.Number);
-            _table.Status = TableStatus.Busy;
+            Products.Add(new Product { Name = "Еспресо", Price = 2.50m, Category = "Кафе" });
+            Products.Add(new Product { Name = "Кола", Price = 3.00m, Category = "Безалкохолни" });
+            Products.Add(new Product { Name = "Бургер", Price = 8.00m, Category = "Храна" });
 
-            Categories = new();
-            Products = new();
-            Items = new();
+            // ================== COMMAND LOGIC ==================
 
-            // load от DB
-            using var cn = db.Open();
-            Categories = new ObservableCollection<Category>(cn.Query<Category>("SELECT * FROM Categories"));
-            Products = new ObservableCollection<Product>(cn.Query<Product>("SELECT * FROM Products"));
+            SelectCategoryCommand = new RelayCommand<Category>(cat =>
+            {
+                _selectedCategory = cat;
+                FilteredProducts.Clear();
+
+                foreach (var p in Products.Where(p => p.Category == cat.Name))
+                    FilteredProducts.Add(p);
+            });
 
             AddProductCommand = new RelayCommand<Product>(p =>
             {
-                var ex = Items.FirstOrDefault(i => i.Product.Id == p.Id);
-                if (ex != null) ex.Qty++;
-                else Items.Add(new OrderItem { Product = p, Qty = 1 });
-                OnPropertyChanged(nameof(Total));
+                var existing = OrderItems.FirstOrDefault(i => i.Product == p);
+
+                if (existing != null)
+                    existing.Qty++;
+                else
+                    OrderItems.Add(new OrderItem { Product = p });
+
+                _table.Status = TableStatus.Busy;
+                _table.HasOpenOrder = true;
+
+                OnTotalsChanged();
             });
 
-            PlaceOrderCommand = new RelayCommand(() =>
+            SubmitOrderCommand = new RelayCommand(() =>
             {
-                _repo.AddItems(_orderId, Items);
+                _table.Status = TableStatus.Busy;
+                _table.HasOpenOrder = true;
+
+                foreach (var item in OrderItems)
+                    item.IsLocked = true;
+
+                _nav.Navigate(_session.FloorPlan!);
             });
+
 
             CloseBillCommand = new RelayCommand(() =>
             {
-                _repo.CloseOrder(_orderId);
+                // Запис в оборота
+                _session.TurnoverHistory.Add(new TurnoverEntry
+                {
+                    Time = DateTime.Now,
+                    Amount = FinalTotal
+                });
+
+                _session.TotalTurnover += FinalTotal;
+
+                // Чистим масата
+                OrderItems.Clear();
+                _table.HasOpenOrder = false;
                 _table.Status = TableStatus.Free;
-                _nav.Navigate(new FloorPlanViewModel(_nav, _session));
+
+                DiscountPercent = 0;
+
+                _nav.Navigate(_session.FloorPlan!);
+
             });
+
+            BackCommand = new RelayCommand(() =>
+            {
+                _nav.Navigate(_session.FloorPlan!);
+            });
+        }
+
+        // ================== HELPERS ==================
+        private void OnTotalsChanged()
+        {
+            OnPropertyChanged(nameof(Subtotal));
+            OnPropertyChanged(nameof(DiscountAmount));
+            OnPropertyChanged(nameof(FinalTotal));
         }
     }
 }

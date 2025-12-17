@@ -1,40 +1,49 @@
 ﻿using Flexi2.Core.MVVM;
-using Flexi2.Core.Navigation;
 using Flexi2.Core.Session;
-using Flexi2.Data;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace Flexi2.ViewModels
 {
+    public class HourTurnover
+    {
+        public int Hour { get; set; }          // 0–23
+        public decimal Amount { get; set; }    // оборот за часа
+    }
+
     public class AdminViewModel : ObservableObject
     {
-        private readonly NavigationService _nav;
         private readonly UserSession _session;
-        private readonly AdminRepository _repo;
 
-        public decimal TotalRevenue { get; }
-        public int OrdersCount { get; }
-        public ObservableCollection<OrderRow> LastOrders { get; }
+        public ObservableCollection<HourTurnover> HourlyTurnover { get; }
+            = new ObservableCollection<HourTurnover>();
 
-        public RelayCommand LogoutCommand { get; }
+        public decimal TotalTurnover => _session.TotalTurnover;
 
-        public AdminViewModel(NavigationService nav, UserSession session)
+        public AdminViewModel(UserSession session)
         {
-            _nav = nav;
             _session = session;
+            Recalculate();
+        }
 
-            var db = new FlexiDb();
-            _repo = new AdminRepository(db);
+        public void Recalculate()
+        {
+            HourlyTurnover.Clear();
 
-            TotalRevenue = _repo.GetTotalRevenue();
-            OrdersCount = _repo.GetOrdersCount();
-            LastOrders = new ObservableCollection<OrderRow>(_repo.GetLastOrders());
+            var grouped = _session.TurnoverHistory
+                .GroupBy(t => t.Time.Hour)
+                .OrderBy(g => g.Key);
 
-            LogoutCommand = new RelayCommand(() =>
+            foreach (var g in grouped)
             {
-                _session.Logout();
-                _nav.Navigate(new LoginViewModel(_nav, _session));
-            });
+                HourlyTurnover.Add(new HourTurnover
+                {
+                    Hour = g.Key,
+                    Amount = g.Sum(x => x.Amount)
+                });
+            }
+
+            OnPropertyChanged(nameof(TotalTurnover));
         }
     }
 }

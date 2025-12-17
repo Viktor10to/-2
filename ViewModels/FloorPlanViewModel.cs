@@ -15,6 +15,7 @@ namespace Flexi2.ViewModels
     {
         private readonly NavigationService _nav;
         private readonly UserSession _session;
+
         public ICommand OpenTableCommand { get; }
 
         public string Title => $"FLOOR PLAN – {_session.DisplayName}";
@@ -40,7 +41,13 @@ namespace Flexi2.ViewModels
             _nav = nav;
             _session = session;
 
-            OpenTableCommand = new RelayCommand<TableModel>(OpenTable);
+            OpenTableCommand = new RelayCommand<TableModel>(table =>
+            {
+                table.Status = TableStatus.Busy;
+                _nav.Navigate(new OrderViewModel(_nav, _session, table));
+            });
+
+
 
             // DEMO маси (ако вече ги имаш – не ги дублирай)
             Tables = new ObservableCollection<TableModel>

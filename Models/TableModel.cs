@@ -8,6 +8,9 @@ namespace Flexi2.Models
         public double X { get; set; }
         public double Y { get; set; }
 
+        public decimal CurrentTotal { get; set; }
+        public DateTime? OpenedAt { get; set; }
+
         public int Number { get; set; }
         private bool _hasOpenOrder;
 

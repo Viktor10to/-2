@@ -3,64 +3,116 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="#0B0B0F">
 
-    <Grid Margin="30">
+    <Grid Margin="25">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- HEADER -->
-        <DockPanel Grid.Row="0" Margin="0,0,0,20">
-            <TextBlock Text="ADMIN DASHBOARD"
-                       Foreground="White"
-                       FontSize="28"
-                       FontWeight="Bold"
-                       DockPanel.Dock="Left"/>
+        <!-- ================= HEADER ================= -->
+        <Grid Grid.Row="0" Height="60">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-            <Button Content="LOGOUT"
-                    Command="{Binding LogoutCommand}"
-                    Padding="18,10"
-                    Background="#2563EB"
+            <TextBlock Text="ADMIN PANEL · ОБОРОТ"
+                       FontSize="22"
+                       FontWeight="Bold"
+                       Foreground="White"
+                       VerticalAlignment="Center"/>
+
+            <!-- LOGOUT -->
+            <Button Grid.Column="1"
+                    Content="LOGOUT"
+                    Padding="24,10"
+                    Background="#7C3AED"
                     Foreground="White"
                     BorderThickness="0"
-                    DockPanel.Dock="Right"/>
-        </DockPanel>
+                    FontWeight="Bold"
+                    Command="{Binding DataContext.LogoutCommand,
+                              RelativeSource={RelativeSource AncestorType=Window}}"/>
+        </Grid>
 
-        <!-- STATS -->
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,20">
-            <Border Background="#14141B" CornerRadius="16" Padding="20" Margin="0,0,20,0">
-                <StackPanel>
-                    <TextBlock Text="ОБОРОТ" Foreground="#9CA3AF"/>
-                    <TextBlock Text="{Binding TotalRevenue, StringFormat={}{0:F2} лв}"
-                               Foreground="White" FontSize="24"/>
+        <!-- ================= CONTENT ================= -->
+        <Grid Grid.Row="1" Margin="0,20,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ===== ОБЩ ОБОРОТ ===== -->
+            <Border Grid.Column="0"
+                    Background="#14141B"
+                    CornerRadius="18"
+                    Padding="20"
+                    Margin="0,0,12,0">
+
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Общ оборот"
+                               Foreground="#CCCCCC"
+                               FontSize="16"
+                               Margin="0,0,0,10"/>
+
+                    <TextBlock Text="{Binding TotalTurnover, StringFormat={}{0:F2} лв}"
+                               Foreground="White"
+                               FontSize="36"
+                               FontWeight="Bold"/>
                 </StackPanel>
             </Border>
 
-            <Border Background="#14141B" CornerRadius="16" Padding="20">
+            <!-- ===== ГРАФИКА ПО ЧАСОВЕ ===== -->
+            <Border Grid.Column="1"
+                    Background="#14141B"
+                    CornerRadius="18"
+                    Padding="20">
+
                 <StackPanel>
-                    <TextBlock Text="ПОРЪЧКИ" Foreground="#9CA3AF"/>
-                    <TextBlock Text="{Binding OrdersCount}"
-                               Foreground="White" FontSize="24"/>
+                    <TextBlock Text="Оборот по часове"
+                               Foreground="White"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Margin="0,0,0,20"/>
+
+                    <ItemsControl ItemsSource="{Binding HourlyTurnover}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal"
+                                            VerticalAlignment="Bottom"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Width="60"
+                                            Margin="10,0"
+                                            VerticalAlignment="Bottom">
+
+                                    <!-- BAR -->
+                                    <Border Background="#7C3AED"
+                                            CornerRadius="6"
+                                            Height="{Binding Amount}"
+                                            MinHeight="8"/>
+
+                                    <!-- HOUR -->
+                                    <TextBlock Text="{Binding Hour, StringFormat={}{0}:00}"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               Margin="0,6,0,0"/>
+
+                                    <!-- AMOUNT -->
+                                    <TextBlock Text="{Binding Amount, StringFormat={}{0:F0} лв}"
+                                               Foreground="#CCCCCC"
+                                               FontSize="12"
+                                               HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
                 </StackPanel>
             </Border>
-        </StackPanel>
 
-        <!-- LAST ORDERS -->
-        <Border Grid.Row="2" Background="#14141B" CornerRadius="18" Padding="20">
-            <DataGrid ItemsSource="{Binding LastOrders}"
-                      AutoGenerateColumns="False"
-                      Background="#14141B"
-                      Foreground="White"
-                      HeadersVisibility="Column"
-                      CanUserAddRows="False">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="ID" Binding="{Binding Id}"/>
-                    <DataGridTextColumn Header="Маса" Binding="{Binding TableNumber}"/>
-                    <DataGridTextColumn Header="Общо" Binding="{Binding Total, StringFormat={}{0:F2} лв}"/>
-                    <DataGridTextColumn Header="Затворена" Binding="{Binding ClosedAt}"/>
-                </DataGrid.Columns>
-            </DataGrid>
-        </Border>
+        </Grid>
     </Grid>
 </UserControl>

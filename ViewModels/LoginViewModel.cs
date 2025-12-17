@@ -88,7 +88,8 @@ namespace Flexi2.ViewModels
                     _session.Role = UserRole.Admin;
                     _session.DisplayName = "ADMIN";
 
-                    _nav.Navigate(new AdminViewModel(_nav, _session));
+                    _nav.Navigate(new AdminViewModel(_session));
+
                     return;
                 }
 

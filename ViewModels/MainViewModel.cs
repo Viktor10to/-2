@@ -11,6 +11,8 @@ namespace Flexi2.ViewModels
 
         public object CurrentView => _nav.CurrentViewModel;
 
+        public RelayCommand LogoutCommand { get; }
+
         public MainViewModel(NavigationService nav, UserSession session)
         {
             _nav = nav;
@@ -19,11 +21,17 @@ namespace Flexi2.ViewModels
             _nav.PropertyChanged += (_, __) =>
                 OnPropertyChanged(nameof(CurrentView));
 
-            // създаваме FloorPlan САМО ВЕДНЪЖ
-            _session.FloorPlan = new FloorPlanViewModel(_nav, _session);
+            LogoutCommand = new RelayCommand(Logout);
 
+            // старт винаги от Login
             _nav.Navigate(new LoginViewModel(_nav, _session));
         }
-    }
 
+        private void Logout()
+        {
+            _session.Clear();
+            _nav.Navigate(new LoginViewModel(_nav, _session));
+        }
+
+    }
 }
