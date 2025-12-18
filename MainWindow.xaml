@@ -1,32 +1,42 @@
-﻿<Window x:Class="Flexi2.MainWindow"
+﻿<Window x:Class="FlexiPOS.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="clr-namespace:Flexi2.ViewModels"
-        xmlns:views="clr-namespace:Flexi2.Views"
-        Title="Flexi2"
-        WindowState="Maximized"
-        Background="#0B0B0F">
+        xmlns:vm="clr-namespace:FlexiPOS.ViewModels"
+        Title="FlexiPOS" Height="900" Width="1500"
+        WindowStartupLocation="CenterScreen">
 
-    <Window.Resources>
+    <Window.DataContext>
+        <vm:MainViewModel/>
+    </Window.DataContext>
 
-        <DataTemplate DataType="{x:Type vm:LoginViewModel}">
-            <views:LoginView/>
-        </DataTemplate>
+    <Grid>
+        <!-- Top bar -->
+        <Grid Height="64" VerticalAlignment="Top" Background="{StaticResource BrushBg1}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
 
-        <DataTemplate DataType="{x:Type vm:FloorPlanViewModel}">
-            <views:FloorPlanView/>
-        </DataTemplate>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="18,0">
+                <TextBlock Text="FlexiPOS" FontSize="22" FontWeight="SemiBold" />
+                <TextBlock Text="   •   Premium Dark POS" Foreground="{StaticResource BrushText1}" Margin="10,3,0,0"/>
+            </StackPanel>
 
-        <DataTemplate DataType="{x:Type vm:OrderViewModel}">
-            <views:OrderView/>
-        </DataTemplate>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,16,0">
+                <Button Content="Exit" Padding="18,10"
+                        Background="{StaticResource BrushBad}"
+                        BorderBrush="{StaticResource BrushBad}"
+                        Command="{Binding ExitCommand}"/>
+            </StackPanel>
+        </Grid>
 
-        <DataTemplate DataType="{x:Type vm:AdminViewModel}">
-            <views:AdminView/>
-        </DataTemplate>
-
-    </Window.Resources>
-
-    <ContentControl Content="{Binding CurrentView}"/>
-
+        <!-- Main content -->
+        <Border Margin="16,80,16,16"
+                Background="{StaticResource BrushBg0}"
+                BorderBrush="{StaticResource BrushStroke}"
+                BorderThickness="1"
+                CornerRadius="{StaticResource RadiusLg}">
+            <ContentControl Content="{Binding Navigation.CurrentViewModel}" />
+        </Border>
+    </Grid>
 </Window>

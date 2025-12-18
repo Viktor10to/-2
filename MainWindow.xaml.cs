@@ -1,22 +1,23 @@
-﻿using System.Windows;
-using Flexi2.Core.Navigation;
-using Flexi2.Core.Session;
-using Flexi2.ViewModels;
+﻿using System.ComponentModel;
+using System.Windows;
+using FlexiPOS.ViewModels;
 
-namespace Flexi2
+namespace FlexiPOS
 {
     public partial class MainWindow : Window
     {
         public MainWindow()
         {
             InitializeComponent();
+            Closing += OnClosing;
+        }
 
-            // Core services
-            var navigationService = new NavigationService();
-            var session = new UserSession();
-
-            // Main VM
-            DataContext = new MainViewModel(navigationService, session);
+        private void OnClosing(object? sender, CancelEventArgs e)
+        {
+            if (DataContext is MainViewModel vm && !vm.CanCloseApp)
+            {
+                e.Cancel = true; // забраняваме X / Alt+F4
+            }
         }
     }
 }

@@ -1,37 +1,29 @@
-﻿using Flexi2.Core.MVVM;
-using Flexi2.Core.Navigation;
-using Flexi2.Core.Session;
+﻿using System.Windows;
+using FlexiPOS.Core;
+using FlexiPOS.Services;
 
-namespace Flexi2.ViewModels
+namespace FlexiPOS.ViewModels
 {
-    public class MainViewModel : ObservableObject
+    public sealed class MainViewModel : ObservableObject
     {
-        private readonly NavigationService _nav;
-        private readonly UserSession _session;
+        public NavigationService Navigation { get; } = new NavigationService();
 
-        public object CurrentView => _nav.CurrentViewModel;
+        public bool CanCloseApp { get; private set; } = false;
 
-        public RelayCommand LogoutCommand { get; }
+        public RelayCommand ExitCommand { get; }
 
-        public MainViewModel(NavigationService nav, UserSession session)
+        public MainViewModel()
         {
-            _nav = nav;
-            _session = session;
+            ExitCommand = new RelayCommand(ExitApp);
 
-            _nav.PropertyChanged += (_, __) =>
-                OnPropertyChanged(nameof(CurrentView));
-
-            LogoutCommand = new RelayCommand(Logout);
-
-            // старт винаги от Login
-            _nav.Navigate(new LoginViewModel(_nav, _session));
+            // старт -> Login
+            Navigation.NavigateTo(new LoginViewModel(Navigation));
         }
 
-        private void Logout()
+        private void ExitApp()
         {
-            _session.Clear();
-            _nav.Navigate(new LoginViewModel(_nav, _session));
+            CanCloseApp = true;
+            Application.Current.Shutdown();
         }
-
     }
 }

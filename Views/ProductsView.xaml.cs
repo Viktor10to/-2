@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace FlexiPOS.Views
 {
     /// <summary>
-    /// Interaction logic for LoginView.xaml
+    /// Interaction logic for ProductsView.xaml
     /// </summary>
-    public partial class LoginView : UserControl
+    public partial class ProductsView : UserControl
     {
-        public LoginView()
+        public ProductsView()
         {
             InitializeComponent();
         }

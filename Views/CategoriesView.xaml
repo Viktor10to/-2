@@ -1,0 +1,50 @@
+﻿<UserControl x:Class="FlexiPOS.Views.CategoriesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:models="clr-namespace:FlexiPOS.Models">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <DockPanel>
+            <Button Content="← Назад" Command="{Binding BackCommand}" Padding="16,10" Margin="0,0,12,0"/>
+            <TextBlock Text="{Binding Title}" FontSize="26" FontWeight="SemiBold" VerticalAlignment="Center"/>
+        </DockPanel>
+
+        <Border Grid.Row="1"
+                Margin="0,18,0,0"
+                Background="{StaticResource BrushCard}"
+                BorderBrush="{StaticResource BrushStroke}"
+                BorderThickness="1"
+                CornerRadius="{StaticResource RadiusLg}"
+                Padding="14">
+
+            <ItemsControl ItemsSource="{Binding Categories}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type models:CategoryModel}">
+                        <Button Width="260" Height="120" Margin="12"
+                                Background="{StaticResource BrushBg1}"
+                                BorderBrush="{StaticResource BrushStroke}"
+                                Command="{Binding DataContext.OpenCategoryCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                CommandParameter="{Binding}">
+                            <StackPanel>
+                                <TextBlock Text="{Binding Name}" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Tap to open" Foreground="{StaticResource BrushText1}" HorizontalAlignment="Center" Margin="0,6,0,0"/>
+                            </StackPanel>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+        </Border>
+    </Grid>
+</UserControl>
