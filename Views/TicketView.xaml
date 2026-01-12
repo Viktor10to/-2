@@ -1,12 +1,110 @@
 ﻿<UserControl x:Class="Flexi2.Views.TicketView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Flexi2.Views"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-            
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Background="#0A0A12" Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="70"/>
+            <RowDefinition/>
+            <RowDefinition Height="90"/>
+        </Grid.RowDefinitions>
+
+        <Border Background="#121225" CornerRadius="14" BorderThickness="2" BorderBrush="#00E5FF" Padding="14">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Left">
+                    <TextBlock Text="TICKET" Foreground="#00FF9C" FontSize="20"/>
+                    <TextBlock Text="{Binding OrderId, StringFormat=Order \#{0}}" Foreground="#CCCCFF"/>
+                </StackPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <Button Content="MENU" Width="120" Margin="0,0,10,0" Command="{Binding OpenMenuCommand}"/>
+                    <Button Content="BACK" Width="120" Command="{Binding BackCommand}"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <Grid Grid.Row="1" Margin="0,14,0,14">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="18"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <Border Background="#181833" CornerRadius="14" BorderThickness="2" BorderBrush="#B400FF" Padding="14">
+                <StackPanel>
+                    <TextBlock Text="LOCKED (read-only)" Foreground="#CCCCFF" Margin="0,0,0,10"/>
+                    <ListBox ItemsSource="{Binding LockedItems}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <DockPanel>
+                                    <TextBlock Text="{Binding NameSnapshot}" Foreground="White"/>
+                                    <TextBlock DockPanel.Dock="Right" Text="{Binding Qty}" Foreground="#00FF9C"/>
+                                </DockPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="2" Background="#181833" CornerRadius="14" BorderThickness="2" BorderBrush="#00FF9C" Padding="14">
+                <StackPanel>
+                    <TextBlock Text="DRAFT (editable)" Foreground="#CCCCFF" Margin="0,0,0,10"/>
+                    <ListBox ItemsSource="{Binding DraftItems}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="150"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Name}" Foreground="White"/>
+                                        <TextBlock Text="{Binding Price, StringFormat={}{0:0.00} лв}" Foreground="#CCCCFF"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button Content="-" Width="32"
+                                                Command="{Binding DataContext.DecDraftQtyCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                CommandParameter="{Binding}"/>
+                                        <TextBlock Text="{Binding Qty}" Foreground="#00FF9C" VerticalAlignment="Center" Margin="10,0"/>
+                                        <Button Content="+" Width="32"
+                                                Command="{Binding DataContext.IncDraftQtyCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                CommandParameter="{Binding}"/>
+                                        <Button Content="X" Width="32" Margin="10,0,0,0"
+                                                Command="{Binding DataContext.RemoveDraftLineCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                CommandParameter="{Binding}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <Button Content="ПОРЪЧАЙ (LOCK)" Command="{Binding SubmitCommand}" Margin="0,10,0,0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="2" Background="#121225" CornerRadius="14" BorderThickness="2" BorderBrush="#2A2A55" Padding="14">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="220"/>
+                    <ColumnDefinition Width="220"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel>
+                    <TextBlock Text="{Binding Total, StringFormat=TOTAL: {0:0.00} лв}" Foreground="White" FontSize="16"/>
+                    <TextBlock Text="{Binding TotalAfterDiscount, StringFormat=AFTER DISC: {0:0.00} лв}" Foreground="#00FF9C" FontSize="16"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="Discount %" Foreground="#CCCCFF"/>
+                    <TextBox Text="{Binding DiscountPercent}" />
+                </StackPanel>
+
+                <Button Grid.Column="2" Content="ПРИКЛЮЧИ"
+                        Command="{Binding CloseBillCommand}"
+                        Background="#1E1E3F" BorderBrush="#00E5FF" BorderThickness="2"/>
+            </Grid>
+        </Border>
     </Grid>
 </UserControl>

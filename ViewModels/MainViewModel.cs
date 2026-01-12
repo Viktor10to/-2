@@ -15,9 +15,17 @@ namespace Flexi2.ViewModels
         public AdminRepository AdminRepo { get; }
 
         public RelayCommand LogoutCommand { get; }
+        public FloorRepository FloorRepo { get; }
+        public AuditRepository AuditRepo { get; }
+        public OrderRepository OrderRepo { get; }
+
 
         public MainViewModel()
         {
+            FloorRepo = new FloorRepository(Db);
+            AuditRepo = new AuditRepository(Db);
+            OrderRepo = new OrderRepository(Db);
+
             Nav = new NavigationService();
             Session = new UserSession();
 

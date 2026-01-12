@@ -1,12 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Flexi2.Models
 {
-    internal class Order
+    public sealed class Order
     {
+        public int Id { get; set; }
+        public int TableId { get; set; }
+        public int OwnerUserId { get; set; }
+        public DateTime OpenedAtUtc { get; set; }
+        public DateTime? ClosedAtUtc { get; set; }
+        public decimal DiscountPercent { get; set; }
+        public string PaidMethod { get; set; } = ""; // Cash/Card later
     }
 }

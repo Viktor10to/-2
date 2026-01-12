@@ -13,11 +13,13 @@ namespace Flexi2.ViewModels
 
         public RelayCommand OpenUsersCommand { get; }
         public RelayCommand LogoutCommand { get; }
+        public RelayCommand OpenFloorCommand { get; }
+
 
         public AdminViewModel(MainViewModel main)
         {
             _main = main;
-
+            OpenFloorCommand = new RelayCommand(_ => Current = new AdminFloorViewModel(_main));
             OpenUsersCommand = new RelayCommand(_ => Current = new AdminUsersViewModel(_main));
             LogoutCommand = new RelayCommand(_ => _main.LogoutCommand.Execute(null));
 

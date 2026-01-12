@@ -32,6 +32,16 @@
             <v:AdminUsersView/>
         </DataTemplate>
 
+        <DataTemplate DataType="{x:Type vm:TicketViewModel}">
+            <v:TicketView/>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vm:AdminFloorViewModel}">
+            <v:AdminFloorView/>
+        </DataTemplate>
+
+
+
         <!-- базови стилове -->
         <Style TargetType="Button">
             <Setter Property="Height" Value="36"/>

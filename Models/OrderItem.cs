@@ -1,37 +1,16 @@
-﻿using Flexi2.Core.MVVM;
+﻿using System;
 
 namespace Flexi2.Models
 {
-    public class OrderItem : ObservableObject
+    public sealed class OrderItem
     {
-        private int _qty = 1;
-        private bool _isLocked;
-
-        public Product Product { get; set; } = null!;
-
-        public int Qty
-        {
-            get => _qty;
-            set
-            {
-                if (IsLocked) return;
-
-                _qty = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(Total));
-            }
-        }
-
-        public bool IsLocked
-        {
-            get => _isLocked;
-            set
-            {
-                _isLocked = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public decimal Total => Product.Price * Qty;
+        public int Id { get; set; }
+        public int OrderId { get; set; }
+        public int ProductId { get; set; }
+        public string NameSnapshot { get; set; } = "";
+        public decimal PriceSnapshot { get; set; }
+        public int Qty { get; set; }
+        public bool IsLocked { get; set; }
+        public DateTime CreatedAtUtc { get; set; }
     }
 }

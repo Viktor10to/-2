@@ -82,15 +82,98 @@ VALUES ($name, $role, $hash, $salt, 1, $created);",
 
         private static void InsertProduct(FlexiDb db, int catId, string name, decimal price)
         {
-            db.Execute(@"
-INSERT INTO Products(CategoryId, Name, Price)
-VALUES ($cid, $name, $price);",
-            cmd =>
+                        db.Execute(@"
+            INSERT INTO Products(CategoryId, Name, Price)
+            VALUES ($cid, $name, $price);",
+                        cmd =>
+                        {
+                            cmd.Parameters.AddWithValue("$cid", catId);
+                            cmd.Parameters.AddWithValue("$name", name);
+                            cmd.Parameters.AddWithValue("$price", (double)price);
+                        });
+                        // Zones
+                        db.Execute(@"
+            CREATE TABLE IF NOT EXISTS Zones(
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                Name TEXT NOT NULL
+            );");
+            
+                        // Tables
+                        db.Execute(@"
+            CREATE TABLE IF NOT EXISTS Tables(
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ZoneId INTEGER NOT NULL,
+                Name TEXT NOT NULL,
+                Status INTEGER NOT NULL DEFAULT 0,
+                OwnerUserId INTEGER NULL,
+                OpenedAtUtc TEXT NULL,
+                CurrentTotal REAL NOT NULL DEFAULT 0,
+                FOREIGN KEY(ZoneId) REFERENCES Zones(Id)
+            );");
+            
+                        // Orders
+                        db.Execute(@"
+            CREATE TABLE IF NOT EXISTS Orders(
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                TableId INTEGER NOT NULL,
+                OwnerUserId INTEGER NOT NULL,
+                OpenedAtUtc TEXT NOT NULL,
+                ClosedAtUtc TEXT NULL,
+                DiscountPercent REAL NOT NULL DEFAULT 0,
+                PaidMethod TEXT NOT NULL DEFAULT '',
+                FOREIGN KEY(TableId) REFERENCES Tables(Id)
+            );");
+            
+                        // OrderItems
+                        db.Execute(@"
+            CREATE TABLE IF NOT EXISTS OrderItems(
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                OrderId INTEGER NOT NULL,
+                ProductId INTEGER NOT NULL,
+                NameSnapshot TEXT NOT NULL,
+                PriceSnapshot REAL NOT NULL,
+                Qty INTEGER NOT NULL,
+                IsLocked INTEGER NOT NULL DEFAULT 1,
+                CreatedAtUtc TEXT NOT NULL,
+                FOREIGN KEY(OrderId) REFERENCES Orders(Id)
+            );");
+            
+                        // AuditLog
+                        db.Execute(@"
+            CREATE TABLE IF NOT EXISTS AuditLog(
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                AtUtc TEXT NOT NULL,
+                UserId INTEGER NOT NULL,
+                Action TEXT NOT NULL,
+                Entity TEXT NOT NULL,
+                EntityId INTEGER NOT NULL,
+                Details TEXT NOT NULL
+            );");
+            
+                        // Turnover
+                        db.Execute(@"
+            CREATE TABLE IF NOT EXISTS Turnover(
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                AtUtc TEXT NOT NULL,
+                UserId INTEGER NOT NULL,
+                TableId INTEGER NOT NULL,
+                TotalAfterDiscount REAL NOT NULL
+            );");
+            var zCount = db.Scalar<long>("SELECT COUNT(1) FROM Zones;");
+            if (zCount == 0)
             {
-                cmd.Parameters.AddWithValue("$cid", catId);
-                cmd.Parameters.AddWithValue("$name", name);
-                cmd.Parameters.AddWithValue("$price", (double)price);
-            });
+                db.Execute("INSERT INTO Zones(Name) VALUES ('Salon');");
+                db.Execute("INSERT INTO Zones(Name) VALUES ('Garden');");
+
+                var salonId = db.Scalar<long>("SELECT Id FROM Zones WHERE Name='Salon' LIMIT 1;");
+                var gardenId = db.Scalar<long>("SELECT Id FROM Zones WHERE Name='Garden' LIMIT 1;");
+
+                db.Execute("INSERT INTO Tables(ZoneId,Name,Status) VALUES ($z,'T1',0);", c => c.Parameters.AddWithValue("$z", (int)salonId));
+                db.Execute("INSERT INTO Tables(ZoneId,Name,Status) VALUES ($z,'T2',0);", c => c.Parameters.AddWithValue("$z", (int)salonId));
+                db.Execute("INSERT INTO Tables(ZoneId,Name,Status) VALUES ($z,'G1',0);", c => c.Parameters.AddWithValue("$z", (int)gardenId));
+            }
+
+
         }
     }
 }

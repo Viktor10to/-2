@@ -31,5 +31,29 @@ namespace Flexi2.ViewModels
             foreach (var p in _main.AdminRepo.GetProductsByCategory(Category.Id))
                 Products.Add(p);
         }
+        private Product? _selected;
+        public Product? Selected
+        {
+            get => _selected;
+            set
+            {
+                _selected = value;
+                OnPropertyChanged();
+
+                if (value == null) return;
+
+                // Трябва да знаем TableId – MVP решение: държим CurrentTableId в Session
+                var tableId = _main.Session.CurrentTableId;
+                if (tableId <= 0) return;
+
+                var ticket = new TicketViewModel(_main, tableId);
+                ticket.AddDraftProduct(value);
+
+                _main.Nav.NavigateTo(ticket);
+                _selected = null;
+                OnPropertyChanged(nameof(Selected));
+            }
+        }
+
     }
 }

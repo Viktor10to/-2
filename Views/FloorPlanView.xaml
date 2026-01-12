@@ -4,6 +4,7 @@
     <Grid Background="#0A0A12">
         <Grid.RowDefinitions>
             <RowDefinition Height="70"/>
+            <RowDefinition Height="60"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
 
@@ -17,7 +18,17 @@
             </Grid>
         </Border>
 
-        <ItemsControl Grid.Row="1" ItemsSource="{Binding Tables}" Margin="20">
+        <Border Grid.Row="1" Background="#0F0F1F" BorderThickness="0,0,0,1" BorderBrush="#2A2A55">
+            <StackPanel Orientation="Horizontal" Margin="18,8">
+                <TextBlock Text="ZONE:" Foreground="#CCCCFF" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <ComboBox Width="220"
+                          ItemsSource="{Binding Zones}"
+                          SelectedItem="{Binding SelectedZone}"
+                          DisplayMemberPath="Name"/>
+            </StackPanel>
+        </Border>
+
+        <ItemsControl Grid.Row="2" ItemsSource="{Binding Tables}" Margin="20">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <WrapPanel/>
@@ -26,15 +37,17 @@
 
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Border Width="160" Height="110" CornerRadius="16"
-                            Margin="10" Background="#181833"
-                            BorderThickness="2" BorderBrush="#B400FF">
+                    <Button Command="{Binding DataContext.OpenTableCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                            CommandParameter="{Binding}"
+                            Width="170" Height="120" Margin="10"
+                            BorderThickness="2" BorderBrush="#B400FF"
+                            Background="#181833">
                         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                             <TextBlock Text="{Binding Name}" Foreground="White" FontSize="18" HorizontalAlignment="Center"/>
                             <TextBlock Text="{Binding Status}" Foreground="#CCCCFF" HorizontalAlignment="Center"/>
                             <TextBlock Text="{Binding CurrentTotal, StringFormat={}{0:0.00} лв}" Foreground="#00FF9C" HorizontalAlignment="Center"/>
                         </StackPanel>
-                    </Border>
+                    </Button>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>

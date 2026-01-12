@@ -2,9 +2,12 @@
 
 namespace Flexi2.Models
 {
-    public class TurnoverEntry
+    public sealed class TurnoverEntry
     {
-        public DateTime Time { get; set; }
-        public decimal Amount { get; set; }
+        public int Id { get; set; }
+        public DateTime AtUtc { get; set; }
+        public int UserId { get; set; }
+        public int TableId { get; set; }
+        public decimal TotalAfterDiscount { get; set; }
     }
 }
