@@ -1,42 +1,17 @@
-﻿<Window x:Class="FlexiPOS.MainWindow"
+﻿<Window x:Class="Flexi2.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="clr-namespace:FlexiPOS.ViewModels"
-        Title="FlexiPOS" Height="900" Width="1500"
+        xmlns:vm="clr-namespace:Flexi2.ViewModels"
+        Title="FlexiPOS"
+        Width="1280"
+        Height="820"
         WindowStartupLocation="CenterScreen">
 
     <Window.DataContext>
         <vm:MainViewModel/>
     </Window.DataContext>
 
-    <Grid>
-        <!-- Top bar -->
-        <Grid Height="64" VerticalAlignment="Top" Background="{StaticResource BrushBg1}">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="18,0">
-                <TextBlock Text="FlexiPOS" FontSize="22" FontWeight="SemiBold" />
-                <TextBlock Text="   •   Premium Dark POS" Foreground="{StaticResource BrushText1}" Margin="10,3,0,0"/>
-            </StackPanel>
-
-            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,16,0">
-                <Button Content="Exit" Padding="18,10"
-                        Background="{StaticResource BrushBad}"
-                        BorderBrush="{StaticResource BrushBad}"
-                        Command="{Binding ExitCommand}"/>
-            </StackPanel>
-        </Grid>
-
-        <!-- Main content -->
-        <Border Margin="16,80,16,16"
-                Background="{StaticResource BrushBg0}"
-                BorderBrush="{StaticResource BrushStroke}"
-                BorderThickness="1"
-                CornerRadius="{StaticResource RadiusLg}">
-            <ContentControl Content="{Binding Navigation.CurrentViewModel}" />
-        </Border>
+    <Grid Background="#0A0A12">
+        <ContentControl Content="{Binding Nav.Current}"/>
     </Grid>
 </Window>

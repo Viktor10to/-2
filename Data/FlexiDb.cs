@@ -1,27 +1,47 @@
-﻿using Microsoft.Data.Sqlite;
-using System.IO;
+﻿using System;
+using Microsoft.Data.Sqlite;
 
 namespace Flexi2.Data
 {
-    public class FlexiDb
+    public sealed class FlexiDb
     {
-        public string DbPath { get; }
+        private readonly string _cs;
 
-        public FlexiDb()
+        public FlexiDb(string dbPath)
         {
-            var dir = Path.Combine(
-                System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData),
-                "Flexi2");
-            Directory.CreateDirectory(dir);
-
-            DbPath = Path.Combine(dir, "flexi2.db");
+            _cs = new SqliteConnectionStringBuilder
+            {
+                DataSource = dbPath,
+                Mode = SqliteOpenMode.ReadWriteCreate,
+                Cache = SqliteCacheMode.Shared
+            }.ToString();
         }
 
         public SqliteConnection Open()
         {
-            var cn = new SqliteConnection($"Data Source={DbPath}");
-            cn.Open();
-            return cn;
+            var con = new SqliteConnection(_cs);
+            con.Open();
+            return con;
+        }
+
+        public void Execute(string sql, Action<SqliteCommand>? bind = null)
+        {
+            using var con = Open();
+            using var cmd = con.CreateCommand();
+            cmd.CommandText = sql;
+            bind?.Invoke(cmd);
+            cmd.ExecuteNonQuery();
+        }
+
+        public T Scalar<T>(string sql, Action<SqliteCommand>? bind = null)
+        {
+            using var con = Open();
+            using var cmd = con.CreateCommand();
+            cmd.CommandText = sql;
+            bind?.Invoke(cmd);
+            var val = cmd.ExecuteScalar();
+            if (val == null || val is DBNull) return default!;
+            return (T)Convert.ChangeType(val, typeof(T));
         }
     }
 }

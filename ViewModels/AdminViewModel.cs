@@ -1,49 +1,27 @@
 ﻿using Flexi2.Core.MVVM;
-using Flexi2.Core.Session;
-using System.Collections.ObjectModel;
-using System.Linq;
 
 namespace Flexi2.ViewModels
 {
-    public class HourTurnover
+    public sealed class AdminViewModel : ObservableObject
     {
-        public int Hour { get; set; }          // 0–23
-        public decimal Amount { get; set; }    // оборот за часа
-    }
+        private readonly MainViewModel _main;
 
-    public class AdminViewModel : ObservableObject
-    {
-        private readonly UserSession _session;
+        public string Title => $"ADMIN • {_main.Session.CurrentUser?.Name}";
 
-        public ObservableCollection<HourTurnover> HourlyTurnover { get; }
-            = new ObservableCollection<HourTurnover>();
+        private object? _current;
+        public object? Current { get => _current; set { _current = value; OnPropertyChanged(); } }
 
-        public decimal TotalTurnover => _session.TotalTurnover;
+        public RelayCommand OpenUsersCommand { get; }
+        public RelayCommand LogoutCommand { get; }
 
-        public AdminViewModel(UserSession session)
+        public AdminViewModel(MainViewModel main)
         {
-            _session = session;
-            Recalculate();
-        }
+            _main = main;
 
-        public void Recalculate()
-        {
-            HourlyTurnover.Clear();
+            OpenUsersCommand = new RelayCommand(_ => Current = new AdminUsersViewModel(_main));
+            LogoutCommand = new RelayCommand(_ => _main.LogoutCommand.Execute(null));
 
-            var grouped = _session.TurnoverHistory
-                .GroupBy(t => t.Time.Hour)
-                .OrderBy(g => g.Key);
-
-            foreach (var g in grouped)
-            {
-                HourlyTurnover.Add(new HourTurnover
-                {
-                    Hour = g.Key,
-                    Amount = g.Sum(x => x.Amount)
-                });
-            }
-
-            OnPropertyChanged(nameof(TotalTurnover));
+            Current = new AdminUsersViewModel(_main);
         }
     }
 }

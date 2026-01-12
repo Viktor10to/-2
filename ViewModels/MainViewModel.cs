@@ -1,29 +1,39 @@
-﻿using System.Windows;
-using FlexiPOS.Core;
-using FlexiPOS.Services;
+﻿using Flexi2.Core.MVVM;
+using Flexi2.Data;
+using Flexi2.Navigation;
+using Flexi2.Session;
 
-namespace FlexiPOS.ViewModels
+namespace Flexi2.ViewModels
 {
     public sealed class MainViewModel : ObservableObject
     {
-        public NavigationService Navigation { get; } = new NavigationService();
+        public NavigationService Nav { get; }
+        public UserSession Session { get; }
 
-        public bool CanCloseApp { get; private set; } = false;
+        public FlexiDb Db { get; }
+        public UserRepository UsersRepo { get; }
+        public AdminRepository AdminRepo { get; }
 
-        public RelayCommand ExitCommand { get; }
+        public RelayCommand LogoutCommand { get; }
 
         public MainViewModel()
         {
-            ExitCommand = new RelayCommand(ExitApp);
+            Nav = new NavigationService();
+            Session = new UserSession();
 
-            // старт -> Login
-            Navigation.NavigateTo(new LoginViewModel(Navigation));
-        }
+            Db = new FlexiDb("flexi.db");
+            DbInit.EnsureCreated(Db);
 
-        private void ExitApp()
-        {
-            CanCloseApp = true;
-            Application.Current.Shutdown();
+            UsersRepo = new UserRepository(Db);
+            AdminRepo = new AdminRepository(Db);
+
+            LogoutCommand = new RelayCommand(_ =>
+            {
+                Session.Clear();
+                Nav.NavigateTo(new LoginViewModel(this));
+            });
+
+            Nav.NavigateTo(new LoginViewModel(this));
         }
     }
 }

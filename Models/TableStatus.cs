@@ -2,7 +2,7 @@
 {
     public enum TableStatus
     {
-        Free,
-        Busy
+        Free = 0,
+        Occupied = 1
     }
 }

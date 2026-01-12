@@ -1,156 +1,50 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Linq;
-using FlexiPOS.Core;
-using FlexiPOS.Models;
-using FlexiPOS.Services;
+﻿using Flexi2.Core.MVVM;
+using Flexi2.Models;
 
-namespace FlexiPOS.ViewModels
+namespace Flexi2.ViewModels
 {
     public sealed class LoginViewModel : ObservableObject
     {
-        private readonly NavigationService _nav;
+        private readonly MainViewModel _main;
 
-        public LoginViewModel(NavigationService nav)
-        {
-            _nav = nav;
-
-            NumpadButtons = new ObservableCollection<string>(
-                new[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "C", "0", "←" });
-
-            PressKeyCommand = new RelayCommand(p => PressKey(p?.ToString() ?? ""));
-            LoginCommand = new RelayCommand(Login, CanLogin);
-
-            // demo PIN-и
-            PosPin = "";
-            AdminPin = "";
-            SelectedMode = 0; // 0 POS, 1 ADMIN
-        }
-
-        // 0 = POS, 1 = ADMIN
-        private int _selectedMode;
-        public int SelectedMode
-        {
-            get => _selectedMode;
-            set
-            {
-                if (Set(ref _selectedMode, value))
-                    RaiseLoginCanExecute();
-            }
-        }
-
-        private string _posPin = "";
-        public string PosPin
-        {
-            get => _posPin;
-            set { if (Set(ref _posPin, value)) RaiseLoginCanExecute(); }
-        }
-
-        private string _adminPin = "";
-        public string AdminPin
-        {
-            get => _adminPin;
-            set { if (Set(ref _adminPin, value)) RaiseLoginCanExecute(); }
-        }
+        private string _pin = "";
+        public string Pin { get => _pin; set { _pin = value; OnPropertyChanged(); } }
 
         private string _error = "";
-        public string Error
+        public string Error { get => _error; set { _error = value; OnPropertyChanged(); } }
+
+        public RelayCommand EnterCommand { get; }
+        public RelayCommand ExitCommand { get; }
+
+        public LoginViewModel(MainViewModel main)
         {
-            get => _error;
-            set => Set(ref _error, value);
-        }
-
-        public ObservableCollection<string> NumpadButtons { get; }
-        public RelayCommand PressKeyCommand { get; }
-        public RelayCommand LoginCommand { get; }
-
-        private string ActivePin
-        {
-            get => SelectedMode == 0 ? PosPin : AdminPin;
-            set
-            {
-                if (SelectedMode == 0) PosPin = value;
-                else AdminPin = value;
-            }
-        }
-
-        private void PressKey(string key)
-        {
-            Error = "";
-
-            if (key == "C")
-            {
-                ActivePin = "";
-                return;
-            }
-            if (key == "←")
-            {
-                if (ActivePin.Length > 0)
-                    ActivePin = ActivePin.Substring(0, ActivePin.Length - 1);
-                return;
-            }
-
-            if (key.All(char.IsDigit))
-            {
-                if (ActivePin.Length >= 8) return; // лимит
-                ActivePin += key;
-            }
-        }
-
-        private bool CanLogin()
-        {
-            var pin = ActivePin;
-            return !string.IsNullOrWhiteSpace(pin) && pin.Length >= 4;
+            _main = main;
+            EnterCommand = new RelayCommand(_ => Login());
+            ExitCommand = new RelayCommand(_ => System.Windows.Application.Current.Shutdown());
         }
 
         private void Login()
         {
-            // TODO: после -> SQLite Users
-            if (SelectedMode == 0)
+            Error = "";
+            if (string.IsNullOrWhiteSpace(Pin))
             {
-                // POS demo: PIN 1111
-                if (PosPin != "1111")
-                {
-                    Error = "Грешен POS PIN.";
-                    return;
-                }
-
-                var session = new SessionContext
-                {
-                    Role = UserRole.PosWaiter,
-                    UserId = 1,
-                    DisplayName = "Waiter #1"
-                };
-
-                _nav.NavigateTo(new FloorPlanViewModel(_nav, session));
+                Error = "Въведи PIN";
+                return;
             }
+
+            var user = _main.UsersRepo.TryLoginByPin(Pin.Trim());
+            if (user == null)
+            {
+                Error = "Грешен код";
+                return;
+            }
+
+            _main.Session.Set(user);
+
+            if (user.Role == UserRole.Admin)
+                _main.Nav.NavigateTo(new AdminViewModel(_main));
             else
-            {
-                // ADMIN demo: PIN 9999
-                if (AdminPin != "9999")
-                {
-                    Error = "Грешен ADMIN PIN.";
-                    return;
-                }
-
-                var session = new SessionContext
-                {
-                    Role = UserRole.Admin,
-                    UserId = 999,
-                    DisplayName = "ADMIN"
-                };
-
-                _nav.NavigateTo(new FloorPlanViewModel(_nav, session));
-            }
+                _main.Nav.NavigateTo(new FloorPlanViewModel(_main));
         }
-
-        private void RaiseLoginCanExecute() => LoginCommand.RaiseCanExecuteChanged();
-    }
-
-    public sealed class SessionContext
-    {
-        public UserRole Role { get; set; }
-        public int UserId { get; set; }
-        public string DisplayName { get; set; } = "";
     }
 }

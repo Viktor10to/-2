@@ -1,11 +1,10 @@
 ﻿namespace Flexi2.Models
 {
-    public class Product
+    public sealed class Product
     {
+        public int Id { get; set; }
+        public int CategoryId { get; set; }
         public string Name { get; set; } = "";
         public decimal Price { get; set; }
-
-        // МНОГО ВАЖНО – това липсваше
-        public string Category { get; set; } = "";
     }
 }

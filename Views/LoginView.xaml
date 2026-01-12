@@ -1,102 +1,19 @@
-﻿<UserControl x:Class="FlexiPOS.Views.LoginView"
+﻿<UserControl x:Class="Flexi2.Views.LoginView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d">
-
-    <Grid Margin="26">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1.15*"/>
-            <ColumnDefinition Width="0.85*"/>
-        </Grid.ColumnDefinitions>
-
-        <!-- Left: Brand + Tabs + PIN -->
-        <Border Background="{StaticResource BrushCard}"
-                BorderBrush="{StaticResource BrushStroke}"
-                BorderThickness="1"
-                CornerRadius="{StaticResource RadiusLg}"
-                Padding="22"
-                Margin="0,0,16,0">
-
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Background="#0A0A12">
+        <Border Width="520" Padding="24" CornerRadius="16"
+                Background="#141428" BorderThickness="2" BorderBrush="#00E5FF"
+                HorizontalAlignment="Center" VerticalAlignment="Center">
             <StackPanel>
-                <TextBlock Text="Вход" FontSize="28" FontWeight="SemiBold"/>
-                <TextBlock Text="POS / ADMIN (PIN)" Foreground="{StaticResource BrushText1}" Margin="0,6,0,18"/>
-
-                <TabControl SelectedIndex="{Binding SelectedMode}" Background="{StaticResource BrushBg1}">
-                    <TabItem Header="POS (Сервитьор)">
-                        <StackPanel Margin="14">
-                            <TextBlock Text="PIN" Foreground="{StaticResource BrushText1}"/>
-                            <TextBox Text="{Binding PosPin, UpdateSourceTrigger=PropertyChanged}"
-                                     FontSize="24"
-                                     Margin="0,8,0,0"/>
-                            <TextBlock Text="Demo PIN: 1111" Foreground="{StaticResource BrushText1}" Margin="0,10,0,0"/>
-                        </StackPanel>
-                    </TabItem>
-                    <TabItem Header="ADMIN">
-                        <StackPanel Margin="14">
-                            <TextBlock Text="ADMIN PIN" Foreground="{StaticResource BrushText1}"/>
-                            <TextBox Text="{Binding AdminPin, UpdateSourceTrigger=PropertyChanged}"
-                                     FontSize="24"
-                                     Margin="0,8,0,0"/>
-                            <TextBlock Text="Demo PIN: 9999" Foreground="{StaticResource BrushText1}" Margin="0,10,0,0"/>
-                        </StackPanel>
-                    </TabItem>
-                </TabControl>
-
-                <TextBlock Text="{Binding Error}"
-                           Foreground="{StaticResource BrushBad}"
-                           Margin="0,14,0,0"
-                           FontSize="16"/>
-
-                <Button Content="Login"
-                        Command="{Binding LoginCommand}"
-                        Margin="0,18,0,0"
-                        Background="{StaticResource BrushAccentBlue}"
-                        BorderBrush="{StaticResource BrushAccentBlue}"
-                        Padding="18,12"
-                        FontSize="20"/>
+                <TextBlock Text="FLEXIPOS LOGIN" Foreground="#00FF9C" FontSize="26" Margin="0,0,0,16"/>
+                <TextBlock Text="PIN" Foreground="#CCCCFF"/>
+                <TextBox Text="{Binding Pin, UpdateSourceTrigger=PropertyChanged}" Height="40" FontSize="18"/>
+                <Button Content="ENTER" Command="{Binding EnterCommand}" Margin="0,12,0,0"/>
+                <Button Content="EXIT" Command="{Binding ExitCommand}" Margin="0,6,0,0"/>
+                <TextBlock Text="{Binding Error}" Foreground="#FF4D4D" Margin="0,10,0,0"/>
+                <TextBlock Text="Admin: 9999   POS: 1111" Foreground="#7777AA" Margin="0,10,0,0"/>
             </StackPanel>
-        </Border>
-
-        <!-- Right: Numpad -->
-        <Border Grid.Column="1"
-                Background="{StaticResource BrushCard}"
-                BorderBrush="{StaticResource BrushStroke}"
-                BorderThickness="1"
-                CornerRadius="{StaticResource RadiusLg}"
-                Padding="18">
-
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-
-                <StackPanel>
-                    <TextBlock Text="Numpad" FontSize="22" FontWeight="SemiBold"/>
-                    <TextBlock Text="Touch-friendly" Foreground="{StaticResource BrushText1}" Margin="0,4,0,12"/>
-                </StackPanel>
-
-                <ItemsControl Grid.Row="1" ItemsSource="{Binding NumpadButtons}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <UniformGrid Columns="3" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Button Content="{Binding}"
-                                    Height="78"
-                                    Margin="8"
-                                    FontSize="24"
-                                    Command="{Binding DataContext.PressKeyCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                    CommandParameter="{Binding}"/>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </Grid>
-
         </Border>
     </Grid>
 </UserControl>

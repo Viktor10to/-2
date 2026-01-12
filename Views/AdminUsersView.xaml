@@ -1,0 +1,86 @@
+﻿<UserControl x:Class="Flexi2.Views.AdminUsersView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:models="clr-namespace:Flexi2.Models">
+
+    <Grid Background="#0A0A12" Margin="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="3*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0"
+                Background="#181833"
+                CornerRadius="12"
+                BorderThickness="2"
+                BorderBrush="#B400FF"
+                Padding="16">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top"
+                           Text="Users"
+                           FontSize="18"
+                           Foreground="#00E5FF"
+                           Margin="0,0,0,10"/>
+
+                <ListBox ItemsSource="{Binding Users}"
+                         SelectedItem="{Binding Selected}"
+                         DisplayMemberPath="Name"/>
+            </DockPanel>
+        </Border>
+
+        <Border Grid.Column="1"
+                Margin="16,0,0,0"
+                Background="#181833"
+                CornerRadius="12"
+                BorderThickness="2"
+                BorderBrush="#00FF9C"
+                Padding="16">
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+
+                    <TextBlock Text="Create User" FontSize="18" Foreground="#00FF9C" Margin="0,0,0,10"/>
+
+                    <TextBlock Text="Name" Foreground="#CCCCFF"/>
+                    <TextBox Text="{Binding NewName}"/>
+
+                    <TextBlock Text="PIN" Foreground="#CCCCFF" Margin="0,8,0,0"/>
+                    <TextBox Text="{Binding NewPin}"/>
+
+                    <TextBlock Text="Role" Foreground="#CCCCFF" Margin="0,8,0,0"/>
+                    <ComboBox SelectedValue="{Binding NewRole}" SelectedValuePath="Tag" SelectionChanged="ComboBox_SelectionChanged">
+                        <ComboBoxItem Content="POS" Tag="{x:Static models:UserRole.Pos}"/>
+                        <ComboBoxItem Content="ADMIN" Tag="{x:Static models:UserRole.Admin}"/>
+                    </ComboBox>
+
+                    <Button Content="CREATE" Command="{Binding CreateCommand}" Margin="0,10,0,20"/>
+
+                    <Separator/>
+
+                    <TextBlock Text="Edit Selected" FontSize="18" Foreground="#FFD700" Margin="0,14,0,10"/>
+
+                    <TextBlock Text="Name" Foreground="#CCCCFF"/>
+                    <TextBox Text="{Binding Selected.Name}"/>
+
+                    <TextBlock Text="Role" Foreground="#CCCCFF" Margin="0,8,0,0"/>
+                    <ComboBox SelectedValue="{Binding Selected.Role}" SelectedValuePath="Tag">
+                        <ComboBoxItem Content="POS" Tag="{x:Static models:UserRole.Pos}"/>
+                        <ComboBoxItem Content="ADMIN" Tag="{x:Static models:UserRole.Admin}"/>
+                    </ComboBox>
+
+                    <CheckBox Content="Active" IsChecked="{Binding Selected.IsActive}" Foreground="White" Margin="0,8,0,0"/>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                        <Button Content="SAVE" Width="110" Command="{Binding SaveCommand}"/>
+                        <Button Content="DELETE" Width="110" Margin="10,0,0,0" Command="{Binding DeleteCommand}"/>
+                    </StackPanel>
+
+                    <TextBlock Text="Change PIN" Foreground="#B400FF" Margin="0,16,0,6"/>
+                    <TextBox Text="{Binding NewPin}"/>
+                    <Button Content="CHANGE PIN" Command="{Binding ChangePinCommand}"/>
+
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</UserControl>

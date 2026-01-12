@@ -1,49 +1,44 @@
-﻿using Dapper;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
+using Flexi2.Models;
 
 namespace Flexi2.Data
 {
-    public class AdminRepository
+    public sealed class AdminRepository
     {
         private readonly FlexiDb _db;
         public AdminRepository(FlexiDb db) => _db = db;
 
-        public decimal GetTotalRevenue()
+        public IEnumerable<Category> GetCategories()
         {
-            using var cn = _db.Open();
-            return cn.ExecuteScalar<decimal>(
-                "SELECT IFNULL(SUM(Qty * Price),0) FROM OrderItems");
+            var list = new List<Category>();
+            using var con = _db.Open();
+            using var cmd = con.CreateCommand();
+            cmd.CommandText = "SELECT Id, Name FROM Categories ORDER BY Name ASC;";
+            using var r = cmd.ExecuteReader();
+            while (r.Read())
+                list.Add(new Category { Id = r.GetInt32(0), Name = r.GetString(1) });
+            return list;
         }
 
-        public int GetOrdersCount()
+        public IEnumerable<Product> GetProductsByCategory(int categoryId)
         {
-            using var cn = _db.Open();
-            return cn.ExecuteScalar<int>(
-                "SELECT COUNT(*) FROM Orders WHERE ClosedAt IS NOT NULL");
+            var list = new List<Product>();
+            using var con = _db.Open();
+            using var cmd = con.CreateCommand();
+            cmd.CommandText = "SELECT Id, CategoryId, Name, Price FROM Products WHERE CategoryId=$cid ORDER BY Name ASC;";
+            cmd.Parameters.AddWithValue("$cid", categoryId);
+            using var r = cmd.ExecuteReader();
+            while (r.Read())
+            {
+                list.Add(new Product
+                {
+                    Id = r.GetInt32(0),
+                    CategoryId = r.GetInt32(1),
+                    Name = r.GetString(2),
+                    Price = (decimal)r.GetDouble(3)
+                });
+            }
+            return list;
         }
-
-        public IEnumerable<OrderRow> GetLastOrders()
-        {
-            using var cn = _db.Open();
-            return cn.Query<OrderRow>(@"
-SELECT o.Id, o.TableNumber, o.ClosedAt,
-       SUM(i.Qty * i.Price) AS Total
-FROM Orders o
-JOIN OrderItems i ON i.OrderId = o.Id
-WHERE o.ClosedAt IS NOT NULL
-GROUP BY o.Id
-ORDER BY o.Id DESC
-LIMIT 10;
-");
-        }
-    }
-
-    public class OrderRow
-    {
-        public int Id { get; set; }
-        public int TableNumber { get; set; }
-        public string ClosedAt { get; set; } = "";
-        public decimal Total { get; set; }
     }
 }
