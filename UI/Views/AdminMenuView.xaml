@@ -1,0 +1,140 @@
+<UserControl x:Class="Flexi2.Views.AdminMenuView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid Background="{StaticResource Bg1Brush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="70"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <!-- Top bar -->
+        <Border Background="#121225" BorderThickness="0,0,0,2" BorderBrush="{StaticResource NeonCyanBrush}">
+            <Grid Margin="18,0">
+                <TextBlock Text="ADMIN • MENU" Foreground="#00FF9C" FontSize="20" VerticalAlignment="Center"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="ACTIVITIES" Width="130" Margin="0,0,12,0" Command="{Binding BackToActivitiesCommand}"/>
+                    <Button Content="HOME" Command="{Binding BackCommand}" Width="120"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1" Margin="20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2.2*"/>
+                <ColumnDefinition Width="18"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Categories -->
+            <Border Style="{StaticResource NeonCard}" Grid.Column="0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="10"/>
+                        <RowDefinition/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel>
+                        <TextBlock Text="Категории" FontSize="18" FontWeight="SemiBold" Foreground="White"/>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                            <TextBox Width="240" MinHeight="38" Style="{StaticResource NeonTextBox}"
+                                     Text="{Binding NewCategoryName, UpdateSourceTrigger=PropertyChanged}"/>
+                            <Button Content="ADD" Margin="10,0,0,0" Width="90" Command="{Binding AddCategoryCommand}"/>
+                            <Button Content="TOGGLE" Margin="10,0,0,0" Width="110" Command="{Binding ToggleCategoryActiveCommand}"/>
+                            <Button Content="DEL" Margin="10,0,0,0" Width="90" Command="{Binding DeleteCategoryCommand}"/>
+                        </StackPanel>
+                        <TextBlock Text="(TOGGLE = показва/скрива категорията в POS)" Foreground="{StaticResource TextDimBrush}" Margin="0,6,0,0" FontSize="12"/>
+                    </StackPanel>
+
+                    <Border Grid.Row="2" Margin="0,12,0,0" Background="#0E1631" CornerRadius="14" BorderThickness="1" BorderBrush="#2A3B77" Padding="8">
+                        <ListBox ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <DockPanel Margin="0,0,0,6">
+                                        <TextBlock Text="{Binding Name}" Foreground="White"/>
+                                        <TextBlock DockPanel.Dock="Right" Text="{Binding IsActive, StringFormat=Active: {0}}" Foreground="{StaticResource TextDimBrush}"/>
+                                    </DockPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Border>
+
+                    <!-- Errors / hints (keep visible) -->
+                    <TextBlock Grid.Row="3" Text="{Binding Error}" Foreground="{StaticResource DangerBrush}" Margin="0,10,0,0" TextWrapping="Wrap"/>
+                </Grid>
+            </Border>
+
+            <!-- Products -->
+            <Border Style="{StaticResource NeonCard}" Grid.Column="2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="10"/>
+                        <RowDefinition/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel>
+                        <TextBlock Text="Артикули" FontSize="18" FontWeight="SemiBold" Foreground="White"/>
+                        <TextBlock Text="{Binding SelectedCategory.Name, StringFormat=Категория: {0}}" Foreground="{StaticResource TextDimBrush}" Margin="0,4,0,0"/>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                            <TextBox Width="240" MinHeight="38" Style="{StaticResource NeonTextBox}"
+                                     Text="{Binding NewProductName, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBox Width="120" MinHeight="38" Margin="10,0,0,0" Style="{StaticResource NeonTextBox}"
+                                     Text="{Binding NewProductPrice, UpdateSourceTrigger=PropertyChanged}"/>
+                            <Button Content="ADD" Margin="10,0,0,0" Width="90" Command="{Binding AddProductCommand}"/>
+                        </StackPanel>
+                        <TextBlock Text="Цена: пример 2.50" Foreground="{StaticResource TextDimBrush}" Margin="0,6,0,0" FontSize="12"/>
+                    </StackPanel>
+
+                    <Border Grid.Row="2" Margin="0,12,0,0" Background="#0E1631" CornerRadius="14" BorderThickness="1" BorderBrush="#2A3B77" Padding="8">
+                        <ListBox ItemsSource="{Binding Products}" SelectedItem="{Binding SelectedProduct}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="#101B3A" CornerRadius="12" Padding="14" Margin="0,0,0,10" BorderThickness="1" BorderBrush="#1B2A55" MinHeight="72">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <Grid Grid.Row="0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding Name}" Foreground="White" FontSize="17" FontWeight="SemiBold"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Price, StringFormat={}{0:0.00} лв}" Foreground="#00FF9C" FontSize="17" FontWeight="Bold" Margin="16,0,0,0"/>
+                                            </Grid>
+
+                                            <Grid Grid.Row="1" Margin="0,10,0,0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <TextBlock Text="{Binding IsActive, StringFormat=Active: {0}}" Foreground="{StaticResource TextDimBrush}" FontSize="12" VerticalAlignment="Center"/>
+                                                <Button Grid.Column="1" Content="TOGGLE" MinWidth="100" MinHeight="38" Margin="0,0,10,0"
+                                                        Command="{Binding DataContext.ToggleProductActiveCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding}"/>
+                                                <Button Grid.Column="2" Content="DEL" MinWidth="80" MinHeight="38"
+                                                        Command="{Binding DataContext.DeleteProductCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding}"/>
+                                            </Grid>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Border>
+
+                    <!-- Errors / hints (keep visible) -->
+                    <TextBlock Grid.Row="3" Text="{Binding Error}" Foreground="{StaticResource DangerBrush}" Margin="0,10,0,0" TextWrapping="Wrap"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -1,0 +1,59 @@
+﻿<UserControl x:Class="Flexi2.Views.AdminUsersView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Background="{StaticResource Bg1Brush}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="3*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Style="{StaticResource NeonCard}" Margin="18">
+            <StackPanel>
+                <DockPanel Margin="0,0,0,12">
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                        <Button Content="ACTIVITIES" Width="130" Margin="0,0,10,0" Command="{Binding BackToActivitiesCommand}"/>
+                        <Button Content="HOME" Width="90" Command="{Binding BackCommand}"/>
+                    </StackPanel>
+                    <TextBlock Text="USERS" FontSize="22" FontWeight="Bold" Foreground="{StaticResource NeonCyanBrush}"/>
+                </DockPanel>
+                <ListBox Style="{StaticResource NeonListBox}" ItemsSource="{Binding Users}" SelectedItem="{Binding Selected}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding Role}" Foreground="{StaticResource TextDimBrush}" FontSize="12"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <Button Content="LOGOUT" Style="{StaticResource NeonButtonPurple}"
+                        Command="{Binding LogoutCommand}" Margin="0,12,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Column="1" Style="{StaticResource NeonCard}" Margin="18">
+            <StackPanel>
+                <TextBlock Text="CREATE / EDIT" FontSize="22" FontWeight="Bold" Foreground="{StaticResource NeonPurpleBrush}" Margin="0,0,0,12"/>
+
+                <TextBlock Text="New Name" Foreground="{StaticResource TextDimBrush}"/>
+                <TextBox Style="{StaticResource NeonTextBox}" Text="{Binding NewName}" Margin="0,6,0,12"/>
+
+                <TextBlock Text="PIN" Foreground="{StaticResource TextDimBrush}"/>
+                <TextBox Style="{StaticResource NeonTextBox}" Text="{Binding NewPin}" Margin="0,6,0,12"/>
+
+                <TextBlock Text="Role (0=POS, 1=ADMIN)" Foreground="{StaticResource TextDimBrush}"/>
+                <TextBox Style="{StaticResource NeonTextBox}" Text="{Binding NewRoleInt}" Margin="0,6,0,16"/>
+
+                <WrapPanel>
+                    <Button Content="CREATE" Style="{StaticResource NeonButton}" Command="{Binding CreateCommand}" Margin="0,0,12,0"/>
+                    <Button Content="SAVE" Style="{StaticResource NeonButtonPurple}" Command="{Binding SaveSelectedCommand}" Margin="0,0,12,0"/>
+                    <Button Content="CHANGE PIN" Style="{StaticResource NeonButton}" Command="{Binding ChangePinCommand}" Margin="0,0,12,0"/>
+                    <Button Content="DELETE" Style="{StaticResource NeonButtonPurple}" Command="{Binding DeleteCommand}"/>
+                </WrapPanel>
+
+                <TextBlock Text="{Binding Error}" Foreground="{StaticResource DangerBrush}" Margin="0,14,0,0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

@@ -1,0 +1,64 @@
+<UserControl x:Class="Flexi2.Views.AdminReportsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d">
+
+    <Grid Background="{StaticResource Bg1Brush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Style="{StaticResource NeonCard}" Margin="16">
+            <DockPanel LastChildFill="False">
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" Margin="0,0,12,0">
+                    <Button Style="{StaticResource NeonButton}" Content="Днес" Command="{Binding TodayCommand}" Margin="0,0,8,0"/>
+                    <Button Style="{StaticResource NeonButton}" Content="Седмица" Command="{Binding WeekCommand}" Margin="0,0,8,0"/>
+                    <Button Style="{StaticResource NeonButton}" Content="Месец" Command="{Binding MonthCommand}" Margin="0,0,8,0"/>
+                    <Button Style="{StaticResource NeonButton}" Content="Година" Command="{Binding YearCommand}" />
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                    <Button Style="{StaticResource NeonButtonPurple}" Content="Дейности" Command="{Binding BackToActivitiesCommand}" Margin="0,0,8,0"/>
+                    <Button Style="{StaticResource NeonButtonPurple}" Content="Назад" Command="{Binding BackCommand}" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <Grid Grid.Row="1" Margin="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Style="{StaticResource NeonCard}" Margin="0,0,12,0">
+                <StackPanel>
+                    <TextBlock Text="Отчети" FontSize="22" FontWeight="SemiBold" Foreground="White"/>
+                    <TextBlock Text="{Binding RangeLabel}" Margin="0,6,0,0" Foreground="{StaticResource TextDimBrush}"/>
+                    <TextBlock Text="Оборот" Margin="0,16,0,0" Foreground="{StaticResource TextDimBrush}"/>
+                    <TextBlock Text="{Binding Total, StringFormat={}{0:0.00} лв}" FontSize="34" FontWeight="Bold" Foreground="{StaticResource NeonCyanBrush}"/>
+                    <TextBlock Text="(затворени сметки)" Margin="0,4,0,0" Foreground="{StaticResource TextDimBrush}"/>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="1" Style="{StaticResource NeonCard}">
+                <StackPanel>
+                    <TextBlock Text="Последни сметки" FontSize="18" FontWeight="SemiBold" Foreground="White"/>
+                    <ListView ItemsSource="{Binding Entries}" Margin="0,12,0,0" Background="#0E1631" BorderBrush="#2A3B77" BorderThickness="1">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="#" DisplayMemberBinding="{Binding Id}" Width="60"/>
+                                <GridViewColumn Header="Маса" DisplayMemberBinding="{Binding TableId}" Width="70"/>
+                                <GridViewColumn Header="Потребител" DisplayMemberBinding="{Binding UserId}" Width="90"/>
+                                <GridViewColumn Header="Кога" DisplayMemberBinding="{Binding AtUtc}" Width="170"/>
+                                <GridViewColumn Header="Общо" DisplayMemberBinding="{Binding TotalAfterDiscount}" Width="90"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>
